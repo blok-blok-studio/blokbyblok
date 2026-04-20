@@ -1,0 +1,9 @@
+# Block all crawlers from course content
+User-agent: *
+Disallow: /courses/
+Disallow: /dashboard/
+Disallow: /api/
+Allow: /
+Allow: /buy
+Allow: /login
+Allow: /register
