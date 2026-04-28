@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { BookOpen, CheckCircle2, Clock, Trophy, Flame, Zap, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock, Trophy, Flame, Zap, Sparkles, ArrowRight, Wrench } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -59,6 +59,38 @@ export default async function DashboardPage() {
   });
   const levelInfo = userStats ? calculateLevel(userStats.totalXp) : calculateLevel(0);
 
+  // Day 0 Setup course — show a "Start Here" nudge until every lesson is done.
+  const setupCourse = await prisma.course.findUnique({
+    where: { slug: "setup" },
+    include: {
+      modules: {
+        include: {
+          lessons: {
+            include: {
+              progress: { where: { userId: session.user.id } },
+            },
+          },
+        },
+        orderBy: { order: "asc" },
+      },
+    },
+  });
+  const setupTotalLessons =
+    setupCourse?.modules.reduce((n, m) => n + m.lessons.length, 0) ?? 0;
+  const setupCompletedLessons =
+    setupCourse?.modules.reduce(
+      (n, m) =>
+        n + m.lessons.filter((l) => l.progress.some((p) => p.completed)).length,
+      0,
+    ) ?? 0;
+  const setupFirstLessonSlug =
+    setupCourse?.modules[0]?.lessons.find((l) => l.order === 0)?.slug ??
+    setupCourse?.modules[0]?.lessons[0]?.slug;
+  const showSetupNudge =
+    !!setupCourse &&
+    setupTotalLessons > 0 &&
+    setupCompletedLessons < setupTotalLessons;
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
@@ -70,6 +102,42 @@ export default async function DashboardPage() {
           Keep building. Your terminal is your superpower — pick up where you left off.
         </p>
       </div>
+
+      {/* Day 0 Setup Nudge — shows until every setup lesson is complete */}
+      {showSetupNudge && setupCourse && (
+        <Card className="overflow-hidden border-accent/40 bg-gradient-to-r from-accent/10 via-background to-primary/10">
+          <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/15">
+              <Wrench className="h-6 w-6 text-accent" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+                Start Here
+              </p>
+              <p className="mt-0.5 font-semibold">
+                Day 0: Set Up Your Computer
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Install Git, Node, Python, VS Code, and Claude Code before your first class.
+                {setupCompletedLessons > 0 &&
+                  ` ${setupCompletedLessons}/${setupTotalLessons} lessons done.`}
+              </p>
+            </div>
+            <Link
+              href={
+                setupFirstLessonSlug
+                  ? `/courses/setup/lesson/${setupFirstLessonSlug}`
+                  : `/courses/setup`
+              }
+            >
+              <Button size="sm" className="shrink-0 gap-1.5">
+                {setupCompletedLessons > 0 ? "Continue Setup" : "Start Setup"}
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Onboarding Checklist */}
       <OnboardingChecklist
