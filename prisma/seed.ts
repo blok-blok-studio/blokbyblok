@@ -3964,6 +3964,244 @@ async function upsertModule(
   }
 }
 
+// ────────────────────────────────────────────────────────────────────
+// Cohort live classes — Spring 2026 cohort schedule
+//
+// Times are 23:00 UTC (= 7pm ET / 6pm CT / 4pm PT). Adjust per-class
+// from /admin/live-classes if the cohort wants different times.
+// Idempotent: re-running this seed updates existing rows by roomName
+// rather than duplicating. Removing a class from this list will NOT
+// delete it — wipe via the admin UI if needed.
+// ────────────────────────────────────────────────────────────────────
+type LiveClassSeed = {
+  roomName: string;
+  title: string;
+  description: string;
+  scheduledAt: Date;
+  durationMinutes: number;
+  lessonSlug?: string;
+};
+
+const COHORT_LIVE_CLASSES: LiveClassSeed[] = [
+  // Week 1 — History of AI (Mon–Fri 2026-05-04 to 2026-05-08, 23:00 UTC)
+  {
+    roomName: "spring-2026-history-day-1",
+    title: "History of AI · Day 1 — The Dream of Thinking Machines",
+    description:
+      "Pre-1950 foundations: Lovelace, Turing, McCulloch–Pitts, cybernetics, and Shannon. The ideas that AI is built on, before any hardware existed to run them.",
+    scheduledAt: new Date("2026-05-04T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "dream-of-thinking-machines",
+  },
+  {
+    roomName: "spring-2026-history-day-2",
+    title: "History of AI · Day 2 — The Birth of AI and the First Winter",
+    description:
+      "1950s–1970s: Dartmouth, the Perceptron, symbolic AI, Minsky vs. Rosenblatt, the Lighthill Report, and the first collapse.",
+    scheduledAt: new Date("2026-05-05T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "birth-of-ai-first-winter",
+  },
+  {
+    roomName: "spring-2026-history-day-3",
+    title: "History of AI · Day 3 — Expert Systems, the Second Winter, and ML Rising",
+    description:
+      "1980s–2000s: XCON, Lisp machines, the Fifth Generation Project, the rediscovery of backprop, statistical ML's takeover, Deep Blue, and the Netflix Prize.",
+    scheduledAt: new Date("2026-05-06T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "expert-systems-second-winter",
+  },
+  {
+    roomName: "spring-2026-history-day-4",
+    title: "History of AI · Day 4 — The Deep Learning Revolution",
+    description:
+      "2010s: AlexNet and ImageNet, GPUs as fuel, Word2Vec, GANs, and Attention Is All You Need. The decade that turned AI from niche into core software.",
+    scheduledAt: new Date("2026-05-07T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "deep-learning-revolution",
+  },
+  {
+    roomName: "spring-2026-history-day-5",
+    title: "History of AI · Day 5 — The Age of Foundation Models",
+    description:
+      "2020s: GPT-3, ChatGPT, Claude, scaling laws, RLHF, and the rise of agents. Where we are today and the open questions for the next decade.",
+    scheduledAt: new Date("2026-05-08T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "age-of-foundation-models",
+  },
+
+  // Weeks 2–5 — Claude: From API to Agents (Mon + Wed each week, 23:00 UTC)
+  {
+    roomName: "spring-2026-claude-class-1",
+    title: "Claude · Class 1 — Understanding Claude: Models, Capabilities, Pricing",
+    description:
+      "The Claude family in 2026: Opus 4.7, Sonnet 4.6, Haiku 4.5. Pricing, context windows, adaptive thinking, vision, and how to choose the right model.",
+    scheduledAt: new Date("2026-05-11T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "understanding-claude-models",
+  },
+  {
+    roomName: "spring-2026-claude-class-2",
+    title: "Claude · Class 2 — The Claude API: First Calls, Messages, and Streaming",
+    description:
+      "Set up the Anthropic SDK, make your first API call, build a streaming terminal chatbot. By the end of class you will have shipped your first Claude integration.",
+    scheduledAt: new Date("2026-05-13T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "claude-api-first-calls",
+  },
+  {
+    roomName: "spring-2026-claude-class-3",
+    title: "Claude · Class 3 — Tool Use and MCP: Connecting Claude to the World",
+    description:
+      "Tool use, the Model Context Protocol, and how to give Claude the ability to read files, hit APIs, query databases, and act on the world.",
+    scheduledAt: new Date("2026-05-18T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "tool-use-and-mcp",
+  },
+  {
+    roomName: "spring-2026-claude-class-4",
+    title: "Claude · Class 4 — Prompt Caching, Files API, and Batch API",
+    description:
+      "Cost optimization at scale. Prompt caching for repeated context, the Files API for large documents, and the Batch API for 50% cheaper async workloads.",
+    scheduledAt: new Date("2026-05-20T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "caching-files-batch",
+  },
+  {
+    roomName: "spring-2026-claude-class-5",
+    title: "Claude · Class 5 — The Claude Agent SDK: Building Autonomous Agents",
+    description:
+      "Build your first autonomous agent with the Claude Agent SDK. Memory, planning loops, tool routing, and graceful shutdown.",
+    scheduledAt: new Date("2026-05-25T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "claude-agent-sdk",
+  },
+  {
+    roomName: "spring-2026-claude-class-6",
+    title: "Claude · Class 6 — Multi-Agent Systems: Delegation and Subagents",
+    description:
+      "Architecting systems where multiple Claude agents delegate to each other. Subagents, supervisors, blackboards, and when NOT to multi-agent.",
+    scheduledAt: new Date("2026-05-27T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "multi-agent-systems",
+  },
+  {
+    roomName: "spring-2026-claude-class-7",
+    title: "Claude · Class 7 — Claude Code: The CLI, Skills, and Hooks",
+    description:
+      "Anthropic's agentic CLI in depth. Skills, hooks, slash commands, MCP servers, and how to make Claude Code do exactly what you want.",
+    scheduledAt: new Date("2026-06-01T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "claude-code-cli-skills-hooks",
+  },
+  {
+    roomName: "spring-2026-claude-class-8",
+    title: "Claude · Class 8 — Routines and Production Deployment",
+    description:
+      "Routines, scheduling, observability, error budgets, and how to run a Claude-powered system in production without it falling over at 3am.",
+    scheduledAt: new Date("2026-06-03T23:00:00Z"),
+    durationMinutes: 120,
+    lessonSlug: "routines-production-deployment",
+  },
+];
+
+// Spring 2026 cohort — created idempotently so students can join with code SPRING26
+// from day one. Includes the courses students should see during the cohort.
+async function seedSpring2026Cohort(ownerId: string) {
+  const cohort = await prisma.cohort.upsert({
+    where: { code: "SPRING26" },
+    update: { ownerId, archived: false },
+    create: {
+      code: "SPRING26",
+      name: "Spring 2026 Cohort",
+      description:
+        "The inaugural cohort. Wednesday Day 0 setup, then History of AI Week 1, then 4 weeks of Claude API → Agents.",
+      ownerId,
+    },
+  });
+
+  const cohortCourseSlugs = [
+    "setup",
+    "history-of-ai",
+    "claude-from-api-to-agents",
+  ];
+  const courses = await prisma.course.findMany({
+    where: { slug: { in: cohortCourseSlugs } },
+    select: { id: true, slug: true },
+  });
+  for (const course of courses) {
+    await prisma.cohortCourse.upsert({
+      where: {
+        cohortId_courseId: { cohortId: cohort.id, courseId: course.id },
+      },
+      update: {},
+      create: { cohortId: cohort.id, courseId: course.id },
+    });
+  }
+
+  console.log(
+    `Cohort: ${cohort.name} (code ${cohort.code}, ${courses.length} courses linked).`,
+  );
+  return cohort;
+}
+
+async function seedCohortLiveClasses(hostUserId: string, cohortId: string) {
+  // Look up lesson IDs once via slug; lesson rows already exist from the
+  // curriculum upsert above.
+  const lessonsBySlug = new Map<string, string>();
+  const slugs = COHORT_LIVE_CLASSES.map((c) => c.lessonSlug).filter(
+    (s): s is string => !!s,
+  );
+  if (slugs.length > 0) {
+    const lessons = await prisma.lesson.findMany({
+      where: { slug: { in: slugs } },
+      select: { id: true, slug: true },
+    });
+    for (const l of lessons) lessonsBySlug.set(l.slug, l.id);
+  }
+
+  let created = 0;
+  let updated = 0;
+  for (const c of COHORT_LIVE_CLASSES) {
+    const lessonId = c.lessonSlug ? lessonsBySlug.get(c.lessonSlug) : null;
+    const existing = await prisma.liveClass.findUnique({
+      where: { roomName: c.roomName },
+    });
+    if (existing) {
+      await prisma.liveClass.update({
+        where: { id: existing.id },
+        data: {
+          title: c.title,
+          description: c.description,
+          scheduledAt: c.scheduledAt,
+          durationMinutes: c.durationMinutes,
+          lessonId: lessonId ?? null,
+          hostUserId,
+          cohortId,
+        },
+      });
+      updated++;
+    } else {
+      await prisma.liveClass.create({
+        data: {
+          roomName: c.roomName,
+          title: c.title,
+          description: c.description,
+          scheduledAt: c.scheduledAt,
+          durationMinutes: c.durationMinutes,
+          lessonId: lessonId ?? null,
+          hostUserId,
+          cohortId,
+        },
+      });
+      created++;
+    }
+  }
+  console.log(
+    `Live classes: ${created} created, ${updated} updated (Spring 2026 cohort).`,
+  );
+}
+
 function resolveSeedPassword(
   envVar: "ADMIN_PASSWORD" | "STUDENT_PASSWORD",
   fallback: string
@@ -4040,6 +4278,9 @@ async function main() {
 
     console.log(`Course: ${course.title} (${course.slug})`);
   }
+
+  const cohort = await seedSpring2026Cohort(admin.id);
+  await seedCohortLiveClasses(admin.id, cohort.id);
 
   // Enroll demo student in first course
   const firstCourse = await prisma.course.findUnique({

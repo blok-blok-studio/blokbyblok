@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Sparkles,
   Code2,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,9 +25,9 @@ const aiCommandFeatures = [
   },
   {
     icon: Cpu,
-    title: "Build AI Agents with OpenClaw",
+    title: "The History of AI",
     description:
-      "Create autonomous AI agents that work for you. Scrape data, automate tasks, and build tools — all by directing AI, not writing code.",
+      "A one-week class tracing AI from Turing and cybernetics to today's frontier models. Understand where the field came from so you can see where it's going.",
   },
   {
     icon: Zap,
@@ -114,13 +115,20 @@ export default function LandingPage() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/courses">
+              <Link href="/setup">
                 <Button variant="outline" size="lg" className="text-base">
-                  <BookOpen className="h-4 w-4" />
-                  Browse Courses
+                  <Wrench className="h-4 w-4" />
+                  Set Up Your Computer
                 </Button>
               </Link>
             </div>
+            <p className="mt-4 text-sm text-muted-foreground">
+              No account needed —{" "}
+              <Link href="/setup" className="text-primary hover:underline">
+                preview the Day 0 setup guide
+              </Link>{" "}
+              before you sign up.
+            </p>
           </div>
         </div>
       </section>
